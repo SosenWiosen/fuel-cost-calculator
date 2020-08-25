@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 
-class RouteScreem extends StatefulWidget {
+class RouteScreen extends StatefulWidget {
   @override
-  _RouteScreemState createState() => _RouteScreemState();
+  _RouteScreenState createState() => _RouteScreenState();
 }
 
-class _RouteScreemState extends State<RouteScreem> {
+class _RouteScreenState extends State<RouteScreen> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Current route"),
+      ),
+      body: ListView.builder(itemBuilder: null),
+    );
   }
 }
