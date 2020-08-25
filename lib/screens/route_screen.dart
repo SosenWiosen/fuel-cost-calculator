@@ -7,7 +7,6 @@ import '../widgets/main_drawer.dart';
 import '../widgets/person_input.dart';
 import '../widgets/route_person.dart';
 
-
 class RouteScreen extends StatefulWidget {
   static const routeName = "/route";
 
@@ -27,12 +26,20 @@ class _RouteScreenState extends State<RouteScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.timer),
-            onPressed: routes.toggleRoute,
+            onPressed: () {
+              routes.toggleRoute(
+                  Provider.of<PersonProvider>(context, listen: false)
+                      .stopDrivingAll);
+            },
           )
         ],
       ),
       body: Column(
         children: [
+          RaisedButton(
+              onPressed:
+                  Provider.of<RouteProvider>(context, listen: false).addPoint,
+              child: Text("Add gps poind for tedsing.")),
           !routes.isActive
               ? PersonInput()
               : Padding(

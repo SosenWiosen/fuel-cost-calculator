@@ -22,13 +22,13 @@ class _PersonInputState extends State<PersonInput> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(10 ),
-      width: MediaQuery.of(context).size.width*0.85,
+      margin: EdgeInsets.all(10),
+      width: MediaQuery.of(context).size.width * 0.85,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            width: MediaQuery.of(context).size.width*0.7,
+            width: MediaQuery.of(context).size.width * 0.7,
             child: TextField(
               decoration: InputDecoration(labelText: "Add a person"),
               controller: _nameController,

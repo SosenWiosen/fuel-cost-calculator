@@ -6,7 +6,6 @@ import 'providers/route_provider.dart';
 import 'screens/route_screen.dart';
 import 'screens/summary_screen.dart';
 
-
 void main() {
   runApp(MyApp());
 }
@@ -18,11 +17,14 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => PersonProvider(),
-        ),
-        ChangeNotifierProvider(
           create: (_) => RouteProvider(),
-        )
+        ),
+        ChangeNotifierProxyProvider<RouteProvider, PersonProvider>(
+          create: (_) => null,
+          update: (ctx, routes, previousPerson) => PersonProvider(
+              routes.positions,
+              previousPerson == null ? [] : previousPerson.persons),
+        ),
       ],
       child: MaterialApp(
         title: 'Fuel Cost Calculator',

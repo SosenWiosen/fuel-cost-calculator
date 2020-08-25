@@ -31,7 +31,7 @@ class MainDrawer extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height*0.15,
+            height: MediaQuery.of(context).size.height * 0.15,
             width: double.infinity,
             alignment: Alignment.centerLeft,
             color: Theme.of(context).accentColor,

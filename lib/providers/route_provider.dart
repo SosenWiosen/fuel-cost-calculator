@@ -2,36 +2,59 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
 class RouteProvider with ChangeNotifier {
-  DateTime _routeStart;
-  DateTime _routeEnd;
   bool isActive = false;
-  List<Position> _positionsList = [];
+  List<Position> _positions = [];
+  var totalDistance = 0.0;
 
-  double getTotalDistance(){
-    //TODO: IMPLEMENT CALCULATING TOTAL DISTANCE
-    return 0;
+  List<Position> get positions {
+    return [..._positions];
+  }
+
+  Future<void> addPoint() async {
+    _positions.add(await Geolocator().getCurrentPosition());
+  }
+
+  Future<double> getDistance(List<Position> points) async {
+    double distanceInMeters = 0;
+    //sorts by timestamp
+    points.sort((position1, position2) =>
+        position1.timestamp.compareTo(position2.timestamp));
+    //calculates
+    for (int i = 1; i < _positions.length; i++) {
+      print(i);
+      distanceInMeters += await Geolocator().distanceBetween(
+          points[i - 1].latitude,
+          points[i - 1].longitude,
+          points[i].latitude,
+          points[i].longitude);
+    }
+    return distanceInMeters;
+  }
+
+  Future<void> setTotalDistance() async {
+    totalDistance = await getDistance(positions);
   }
 
   void fetchAndSetPositions() async {
     //TODO: IMPLEMENT FETCHING OF COORDINATES FROM SQL DATABASE
   }
-  void toggleRoute()
-  {
-    if(!isActive)
+
+  void toggleRoute(Function function) {
+    if (!isActive)
       startRoute();
     else
-      endRoute();
+      endRoute(function);
     notifyListeners();
-
   }
 
   void startRoute() {
-    isActive=true;
-    _routeStart = DateTime.now();
+    //start gps tracker
+    isActive = true;
   }
 
-  void endRoute() {
-    isActive=false;
-    _routeEnd = DateTime.now();
+  void endRoute(Function function) {
+    isActive = false;
+
+    //clear database
   }
 }

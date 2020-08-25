@@ -1,6 +1,13 @@
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
 
 class PersonProvider with ChangeNotifier {
+  PersonProvider(
+    this._positions,
+    this._persons,
+  );
+
+  List<Position> _positions;
   List<Person> _persons = [];
 
   List<Person> get persons {
@@ -9,6 +16,55 @@ class PersonProvider with ChangeNotifier {
 
   Person getPerson(String id) {
     return _persons.where((element) => element.id == id).first;
+  }
+
+  Future<double> getDistance(List<Position> points) async {
+    double distanceInMeters = 0;
+    //sorts by timestamp
+    points.sort((position1, position2) =>
+        position1.timestamp.compareTo(position2.timestamp));
+    print("getting distąs");
+    //calculates
+    for (int i = 1; i < points.length; i++) {
+      distanceInMeters += await Geolocator().distanceBetween(
+          points[i - 1].latitude,
+          points[i - 1].longitude,
+          points[i].latitude,
+          points[i].longitude);
+    }
+    return distanceInMeters;
+  }
+
+  Future<void> setPersonsDistance() async {
+    double personDistanceInMeters = 0;
+
+    _persons.forEach((person) {
+//      print(person.drivingTimes.toString());
+      person.drivingTimes.forEach((drivingTime) async {
+        //gets points in given drivingTime and calculates the distance
+        List<Position> pointsWhileDriving = _positions
+            .where(
+              (position) =>
+                  (position.timestamp.isAfter(drivingTime.startedDriving) &&
+                      position.timestamp.isBefore(drivingTime.stoppedDriving)),
+            )
+            .toList();
+//        print("calculating distęs");
+        //adds distance for a given points between a given timestamp
+        personDistanceInMeters += await getDistance(pointsWhileDriving);
+      }); /**/
+      /*print(
+          "printing person distance $personDistanceInMeters of ${person.name}");*/
+      person.metersDriven = personDistanceInMeters;
+      notifyListeners();
+    });
+    //calculates distance for each drivingTime,
+  }
+
+  void stopDrivingAll() {
+    _persons.forEach((element) {
+      element.isDriving = false;
+    });
   }
 
   void addPerson(String name) {
@@ -31,7 +87,7 @@ class Person with ChangeNotifier {
   String id;
   String name = "";
   DateTime _lastStart;
-  double kmDriven = 0;
+  double metersDriven = 0;
 
   Person(this.name, this.id);
 
