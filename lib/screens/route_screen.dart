@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:fuel_cost_calculator/provider/person_provider.dart';
-import 'package:fuel_cost_calculator/provider/route_provider.dart';
-import 'package:fuel_cost_calculator/widgets/main_drawer.dart';
-import 'package:fuel_cost_calculator/widgets/person_input.dart';
-import 'package:fuel_cost_calculator/widgets/route_person.dart';
 import 'package:provider/provider.dart';
+
+import '../providers/person_provider.dart';
+import '../providers/route_provider.dart';
+import '../widgets/main_drawer.dart';
+import '../widgets/person_input.dart';
+import '../widgets/route_person.dart';
+
 
 class RouteScreen extends StatefulWidget {
   static const routeName = "/route";

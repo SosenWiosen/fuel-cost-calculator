@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fuel_cost_calculator/provider/person_provider.dart';
 import 'package:provider/provider.dart';
+
+import '../providers/person_provider.dart';
 
 class RoutePerson extends StatefulWidget {
   final String id;

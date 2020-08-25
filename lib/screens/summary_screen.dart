@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fuel_cost_calculator/widgets/main_drawer.dart';
+
+import '../widgets/main_drawer.dart';
 
 class SummaryScreen extends StatefulWidget {
   static const routeName = "/summary";

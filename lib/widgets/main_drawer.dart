@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fuel_cost_calculator/screens/route_screen.dart';
-import 'package:fuel_cost_calculator/screens/summary_screen.dart';
+
+import '../screens/route_screen.dart';
+import '../screens/summary_screen.dart';
 
 class MainDrawer extends StatelessWidget {
   Widget buildListTile({

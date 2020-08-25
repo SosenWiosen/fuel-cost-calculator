@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:fuel_cost_calculator/provider/person_provider.dart';
-import 'package:fuel_cost_calculator/provider/route_provider.dart';
-import 'package:fuel_cost_calculator/screens/route_screen.dart';
-import 'package:fuel_cost_calculator/screens/summary_screen.dart';
 import 'package:provider/provider.dart';
+
+import 'providers/person_provider.dart';
+import 'providers/route_provider.dart';
+import 'screens/route_screen.dart';
+import 'screens/summary_screen.dart';
+
 
 void main() {
   runApp(MyApp());
