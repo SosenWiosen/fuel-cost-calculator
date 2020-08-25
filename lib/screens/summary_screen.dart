@@ -43,7 +43,8 @@ class _SummaryScreenState extends State<SummaryScreen> {
   Widget build(BuildContext context) {
     final persons = Provider.of<PersonProvider>(context).persons;
     final route = Provider.of<RouteProvider>(context);
-    final totalDistance = route.totalDistance;
+    final totalDistance =
+        Provider.of<PersonProvider>(context).totalDistanceByAllPersons;
     return Scaffold(
       drawer: MainDrawer(),
       appBar: AppBar(
@@ -84,7 +85,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                       TableRow(
                         children: [
                           Text("Person:"),
-                          Text("Km Driven: "),
+                          Text("Distance Driven: "),
                           Text("Cost:"),
                         ],
                       ),
@@ -93,11 +94,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
                         return TableRow(
                           children: [
                             Text(person.name),
-                            Text(person.metersDriven.toString()),
+                            Text("${person.metersDriven.toStringAsFixed(0)}m"),
                             Text(
                               totalDistance == 0.0
                                   ? "0 zł"
-                                  : "${(fuelCost * person.metersDriven / totalDistance)} zł",
+                                  : "${(fuelCost * person.metersDriven / totalDistance).toStringAsFixed(0)} zł",
                             ),
                           ],
                         );

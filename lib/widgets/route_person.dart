@@ -27,7 +27,7 @@ class _RoutePersonState extends State<RoutePerson> {
                   value: currentPerson.isDriving,
                   onChanged: (val) {
                     setState(() {
-                      currentPerson.toggleIsDriving(val);
+                      currentPerson.toggleIsDriving();
                     });
                   }),
               Padding(

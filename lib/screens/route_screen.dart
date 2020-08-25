@@ -28,8 +28,9 @@ class _RouteScreenState extends State<RouteScreen> {
             icon: Icon(Icons.timer),
             onPressed: () {
               routes.toggleRoute(
-                  Provider.of<PersonProvider>(context, listen: false)
-                      .stopDrivingAll);
+                Provider.of<PersonProvider>(context, listen: false)
+                    .stopDrivingAll,
+              );
             },
           )
         ],

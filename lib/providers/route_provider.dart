@@ -21,7 +21,7 @@ class RouteProvider with ChangeNotifier {
         position1.timestamp.compareTo(position2.timestamp));
     //calculates
     for (int i = 1; i < _positions.length; i++) {
-      print(i);
+      //print(i);
       distanceInMeters += await Geolocator().distanceBetween(
           points[i - 1].latitude,
           points[i - 1].longitude,
@@ -33,6 +33,7 @@ class RouteProvider with ChangeNotifier {
 
   Future<void> setTotalDistance() async {
     totalDistance = await getDistance(positions);
+    print("total distąs $totalDistance");
   }
 
   void fetchAndSetPositions() async {
@@ -54,6 +55,7 @@ class RouteProvider with ChangeNotifier {
 
   void endRoute(Function function) {
     isActive = false;
+    function();
 
     //clear database
   }

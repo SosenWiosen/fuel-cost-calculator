@@ -2,20 +2,28 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
 class PersonProvider with ChangeNotifier {
-  PersonProvider(
-    this._positions,
-    this._persons,
-  );
+  PersonProvider(this._positions,
+      this._persons,);
 
   List<Position> _positions;
   List<Person> _persons = [];
+
+  double get totalDistanceByAllPersons {
+    var sum = 0.0;
+    _persons.forEach((element) {
+      sum += element.metersDriven;
+    });
+    return sum;
+  }
 
   List<Person> get persons {
     return [..._persons];
   }
 
   Person getPerson(String id) {
-    return _persons.where((element) => element.id == id).first;
+    return _persons
+        .where((element) => element.id == id)
+        .first;
   }
 
   Future<double> getDistance(List<Position> points) async {
@@ -23,39 +31,48 @@ class PersonProvider with ChangeNotifier {
     //sorts by timestamp
     points.sort((position1, position2) =>
         position1.timestamp.compareTo(position2.timestamp));
-    print("getting distąs");
+    // print("getting distąs");
+    //print(points.length);
     //calculates
     for (int i = 1; i < points.length; i++) {
+      // print(i);
+      //print(points[i].latitude);
       distanceInMeters += await Geolocator().distanceBetween(
           points[i - 1].latitude,
           points[i - 1].longitude,
           points[i].latitude,
           points[i].longitude);
+      /*print(
+        " distans in iteration$i is${distanceInMeters*/ /*await Geolocator().distanceBetween(points[i - 1].latitude, points[i - 1].longitude, points[i].latitude, points[i].longitude)*/ /*}",
+      );*/
     }
     return distanceInMeters;
   }
 
   Future<void> setPersonsDistance() async {
-    double personDistanceInMeters = 0;
+    double personDistanceInMeters = 0.0;
 
-    _persons.forEach((person) {
+    _persons.forEach((person) async {
 //      print(person.drivingTimes.toString());
       person.drivingTimes.forEach((drivingTime) async {
         //gets points in given drivingTime and calculates the distance
         List<Position> pointsWhileDriving = _positions
             .where(
               (position) =>
-                  (position.timestamp.isAfter(drivingTime.startedDriving) &&
-                      position.timestamp.isBefore(drivingTime.stoppedDriving)),
-            )
+          (position.timestamp.isAfter(drivingTime.startedDriving) &&
+              position.timestamp.isBefore(drivingTime.stoppedDriving)),
+        )
             .toList();
 //        print("calculating distęs");
         //adds distance for a given points between a given timestamp
-        personDistanceInMeters += await getDistance(pointsWhileDriving);
+        person.metersDriven += await getDistance(pointsWhileDriving);
+        //print(" this is inside the function${person.metersDriven}");
       }); /**/
+
       /*print(
           "printing person distance $personDistanceInMeters of ${person.name}");*/
-      person.metersDriven = personDistanceInMeters;
+
+      // print(person.metersDriven);
       notifyListeners();
     });
     //calculates distance for each drivingTime,
@@ -63,7 +80,9 @@ class PersonProvider with ChangeNotifier {
 
   void stopDrivingAll() {
     _persons.forEach((element) {
-      element.isDriving = false;
+      if (element.isDriving) {
+        element.toggleIsDriving();
+      }
     });
   }
 
@@ -97,7 +116,7 @@ class Person with ChangeNotifier {
     return [..._drivingTimes];
   }
 
-  void toggleIsDriving(bool val) {
+  void toggleIsDriving() {
     if (isDriving == false) {
       print(isDriving);
       final currDateTime = DateTime.now();
@@ -112,7 +131,6 @@ class Person with ChangeNotifier {
     final drivingTime = _drivingTimes
         .where((element) => element.startedDriving == _lastStart)
         .first;
-    print(drivingTime);
     drivingTime.stoppedDriving = DateTime.now();
     isDriving = !isDriving;
     notifyListeners();
