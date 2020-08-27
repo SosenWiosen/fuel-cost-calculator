@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:fuel_cost_calculator/helpers/db_helper.dart';
+import 'package:fuel_cost_calculator/helpers/mapping_helper.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RouteProvider with ChangeNotifier {
   bool isActive = false;
@@ -11,7 +14,10 @@ class RouteProvider with ChangeNotifier {
   }
 
   Future<void> addPoint() async {
-    _positions.add(await Geolocator().getCurrentPosition());
+    final currPos = await Geolocator().getCurrentPosition();
+    _positions.add(currPos);
+    await DBHelper.insert(
+        DBHelper.gpsPointsTableName, MappingHelper.mapPosition(currPos));
   }
 
   Future<double> getDistance(List<Position> points) async {
@@ -36,8 +42,10 @@ class RouteProvider with ChangeNotifier {
     print("total distąs $totalDistance");
   }
 
-  void fetchAndSetPositions() async {
-    //TODO: IMPLEMENT FETCHING OF COORDINATES FROM SQL DATABASE
+  Future<void> fetchAndSetPositions() async {
+    final dataList = await DBHelper.getData(DBHelper.gpsPointsTableName);
+    _positions =
+        dataList.map((map) => MappingHelper.convertMapToPosition(map)).toList();
   }
 
   void toggleRoute(Function function) {
@@ -48,13 +56,26 @@ class RouteProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void startRoute() {
+  Future<void> fetchAndSetIsActiveStatus() async {
+    print("nigga?");
+    final prefs = await SharedPreferences.getInstance();
+    isActive = prefs.getBool("isActive") ?? false;
+  }
+
+  void startRoute() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool("isActive", true);
     //start gps tracker
+    final db = await DBHelper.database();
+    db.delete(DBHelper.gpsPointsTableName);
     isActive = true;
   }
 
-  void endRoute(Function function) {
+  void endRoute(Function function) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool("isActive", false);
     isActive = false;
+
     function();
 
     //clear database

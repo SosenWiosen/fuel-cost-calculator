@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +16,26 @@ class RouteScreen extends StatefulWidget {
 }
 
 class _RouteScreenState extends State<RouteScreen> {
+  var _isInit = true;
+  var _isLoading = false;
+
+  @override
+  void didChangeDependencies() async {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+      await Provider.of<RouteProvider>(context, listen: false)
+          .fetchAndSetIsActiveStatus();
+      await Provider.of<PersonProvider>(context, listen: false)
+          .fetchAndSetPersons();
+      setState(() {
+        _isLoading = false;
+      });
+    }
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     final persons = Provider.of<PersonProvider>(context).persons;
@@ -35,29 +56,34 @@ class _RouteScreenState extends State<RouteScreen> {
           )
         ],
       ),
-      body: Column(
-        children: [
-          RaisedButton(
-              onPressed:
-                  Provider.of<RouteProvider>(context, listen: false).addPoint,
-              child: Text("Add gps poind for tedsing.")),
-          !routes.isActive
-              ? PersonInput()
-              : Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Route in progress!",
-                    style: TextStyle(fontSize: 16),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              children: [
+                RaisedButton(
+                    onPressed:
+                        Provider.of<RouteProvider>(context, listen: false)
+                            .addPoint,
+                    child: Text("Add gps poind for tedsing.")),
+                !routes.isActive
+                    ? PersonInput()
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Route in progress!",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: persons.length,
+                    itemBuilder: (ctx, index) => RoutePerson(persons[index].id),
                   ),
                 ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: persons.length,
-              itemBuilder: (ctx, index) => RoutePerson(persons[index].id),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

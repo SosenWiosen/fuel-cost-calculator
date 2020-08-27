@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:fuel_cost_calculator/helpers/db_helper.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:min_id/min_id.dart';
+import 'package:sqflite/sqflite.dart';
 
 class PersonProvider with ChangeNotifier {
   PersonProvider(
@@ -18,9 +21,21 @@ class PersonProvider with ChangeNotifier {
     return sum;
   }
 
-  void removePerson(String id) {
-    _persons.removeWhere((element) => element.id == id);
+  void addPerson(String name) {
+    //print("fuick");
+    Person person = Person(name,
+        DateTime.now().toString().replaceAll(" ", "").replaceAll(":", ""));
+    //print(person.id);
+    _persons.add(person);
     notifyListeners();
+    DBHelper.insert(DBHelper.personsTableName, person.toMap());
+  }
+
+  void removePerson(String id) async {
+    _persons.removeWhere((element) => element.id == id);
+    final db = await DBHelper.database();
+    notifyListeners();
+    await db.delete(DBHelper.personsTableName, where: "id=?", whereArgs: [id]);
   }
 
   List<Person> get persons {
@@ -89,13 +104,37 @@ class PersonProvider with ChangeNotifier {
     });
   }
 
-  void addPerson(String name) {
-    _persons.add(Person(name, DateTime.now().toString()));
-    notifyListeners();
-  }
-
   int getPersonCount() {
     return _persons.length;
+  }
+
+  Future<void> fetchAndSetPersons() async {
+    final personDataList = await DBHelper.getData(DBHelper.personsTableName);
+    final drivingTimesDataList =
+        await DBHelper.getData(DBHelper.drivingTimesTableName);
+    final drivingTimesList = drivingTimesDataList
+        .map((drivingTimes) => DrivingDateTime.fromMap(drivingTimes));
+
+    var personsTemp = personDataList
+        .map(
+          (personMap) => Person.fromMapAndDateTimeList(
+            personMap,
+            drivingTimesList
+                .where((element) => element.id == personMap["id"])
+                .toList(),
+          ),
+        )
+        .toList();
+
+    _persons = personsTemp;
+    /*_persons = personDataList.map(
+      (personMap) => Person.fromMapAndDateTimeList(
+        personMap,
+        drivingTimesList
+            .where((element) => element.id == personMap["id"])
+            .toList(),
+      ),
+    );*/
   }
 }
 
@@ -103,10 +142,31 @@ class Person with ChangeNotifier {
   bool isDriving = false;
   String id;
   String name = "";
-  DateTime _lastStart;
   double metersDriven = 0;
 
   Person(this.name, this.id);
+
+  Person.fromMapAndDateTimeList(Map<String, dynamic> personMap,
+      List<DrivingDateTime> drivingDateTimeList) {
+    id = personMap["id"];
+    name = personMap["name"];
+    isDriving = personMap["is_driving"] == "true" ? true : false;
+    drivingDateTimeList.sort(
+      (drivingDateTime1, drivingDateTime2) => drivingDateTime2.startedDriving
+              .isAfter(drivingDateTime1.startedDriving)
+          ? 1
+          : -1,
+    );
+    _drivingTimes = drivingDateTimeList;
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      "id": id,
+      "name": name,
+      "is_driving": isDriving.toString(),
+    };
+  }
 
   List<DrivingDateTime> _drivingTimes = [];
 
@@ -114,30 +174,59 @@ class Person with ChangeNotifier {
     return [..._drivingTimes];
   }
 
-  void toggleIsDriving() {
+  void toggleIsDriving() async {
     if (isDriving == false) {
-      print(isDriving);
-      final currDateTime = DateTime.now();
-      _drivingTimes.add(DrivingDateTime(currDateTime));
+      var currDrivingTime = DrivingDateTime(DateTime.now(), id);
+      _drivingTimes.add(DrivingDateTime(DateTime.now(), id));
+      DBHelper.insert(DBHelper.drivingTimesTableName, currDrivingTime.toMap());
 
-      _lastStart = currDateTime;
       isDriving = !isDriving;
       notifyListeners();
       return;
     }
 
-    final drivingTime = _drivingTimes
-        .where((element) => element.startedDriving == _lastStart)
-        .first;
+    final drivingTime = _drivingTimes.last;
+    final db = await DBHelper.database();
     drivingTime.stoppedDriving = DateTime.now();
     isDriving = !isDriving;
+    db.update(DBHelper.drivingTimesTableName, drivingTime.toMap(),
+        where: "id=?",
+        whereArgs: [drivingTime.id],
+        conflictAlgorithm: ConflictAlgorithm.replace);
+
     notifyListeners();
+    print(isDriving);
   }
 }
 
 class DrivingDateTime {
+  String id;
+  String userId;
   DateTime startedDriving;
   DateTime stoppedDriving;
 
-  DrivingDateTime(this.startedDriving);
+  Map<String, dynamic> toMap() {
+    final stoppedDrivingTemp =
+        stoppedDriving == null ? "" : stoppedDriving.toIso8601String();
+    return {
+      "id": id,
+      "user_id": userId,
+      "started_driving": startedDriving.toIso8601String(),
+      "stopped_driving": stoppedDrivingTemp,
+    };
+  }
+
+  DrivingDateTime.fromMap(Map<String, dynamic> map) {
+    id = map["id"];
+    userId = map["user_id"];
+    startedDriving = DateTime.parse(map["started_driving"]);
+    stoppedDriving =
+        (map["stopped_driving"] == null || map["stopped_driving"] == "")
+            ? null
+            : DateTime.parse(map["stopped_driving"]);
+  }
+
+  DrivingDateTime(this.startedDriving, this.userId) {
+    id = MinId.getId();
+  }
 }

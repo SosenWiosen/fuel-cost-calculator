@@ -18,22 +18,35 @@ class _SummaryScreenState extends State<SummaryScreen> {
   var _isLoading = false;
 
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async {
     if (_isInit) {
       setState(() {
         _isLoading = true;
       });
-      Provider.of<RouteProvider>(context, listen: false)
-          .setTotalDistance()
-          .then((_) {
-        Provider.of<PersonProvider>(context, listen: false)
-            .setPersonsDistance()
+      await Provider.of<RouteProvider>(context, listen: false)
+          .fetchAndSetPositions();
+      await Provider.of<RouteProvider>(context, listen: false)
+          .setTotalDistance();
+      await Provider.of<PersonProvider>(context, listen: false)
+          .setPersonsDistance();
+      setState(() {
+        _isLoading=false;
+      });
+      /*Provider.of<RouteProvider>(context, listen: false)
+          .fetchAndSetPositions()
+          .then((value) {
+        Provider.of<RouteProvider>(context, listen: false)
+            .setTotalDistance()
             .then((_) {
-          setState(() {
-            _isLoading = false;
+          Provider.of<PersonProvider>(context, listen: false)
+              .setPersonsDistance()
+              .then((_) {
+            setState(() {
+              _isLoading = false;
+            });
           });
         });
-      });
+      });*/
     }
     _isInit = false;
     super.didChangeDependencies();
