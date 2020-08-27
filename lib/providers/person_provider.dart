@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
 class PersonProvider with ChangeNotifier {
-  PersonProvider(this._positions,
-      this._persons,);
+  PersonProvider(
+    this._positions,
+    this._persons,
+  );
 
   List<Position> _positions;
   List<Person> _persons = [];
@@ -16,14 +18,17 @@ class PersonProvider with ChangeNotifier {
     return sum;
   }
 
+  void removePerson(String id) {
+    _persons.removeWhere((element) => element.id == id);
+    notifyListeners();
+  }
+
   List<Person> get persons {
     return [..._persons];
   }
 
   Person getPerson(String id) {
-    return _persons
-        .where((element) => element.id == id)
-        .first;
+    return _persons.where((element) => element.id == id).first;
   }
 
   Future<double> getDistance(List<Position> points) async {
@@ -50,8 +55,6 @@ class PersonProvider with ChangeNotifier {
   }
 
   Future<void> setPersonsDistance() async {
-    double personDistanceInMeters = 0.0;
-
     _persons.forEach((person) async {
 //      print(person.drivingTimes.toString());
       person.drivingTimes.forEach((drivingTime) async {
@@ -59,9 +62,9 @@ class PersonProvider with ChangeNotifier {
         List<Position> pointsWhileDriving = _positions
             .where(
               (position) =>
-          (position.timestamp.isAfter(drivingTime.startedDriving) &&
-              position.timestamp.isBefore(drivingTime.stoppedDriving)),
-        )
+                  (position.timestamp.isAfter(drivingTime.startedDriving) &&
+                      position.timestamp.isBefore(drivingTime.stoppedDriving)),
+            )
             .toList();
 //        print("calculating distęs");
         //adds distance for a given points between a given timestamp
@@ -88,11 +91,6 @@ class PersonProvider with ChangeNotifier {
 
   void addPerson(String name) {
     _persons.add(Person(name, DateTime.now().toString()));
-    notifyListeners();
-  }
-
-  void deletePerson(String id) {
-    _persons.removeWhere((element) => element.id == id);
     notifyListeners();
   }
 

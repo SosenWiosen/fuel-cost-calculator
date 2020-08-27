@@ -42,7 +42,6 @@ class _SummaryScreenState extends State<SummaryScreen> {
   @override
   Widget build(BuildContext context) {
     final persons = Provider.of<PersonProvider>(context).persons;
-    final route = Provider.of<RouteProvider>(context);
     final totalDistance =
         Provider.of<PersonProvider>(context).totalDistanceByAllPersons;
     return Scaffold(

@@ -17,29 +17,43 @@ class _RoutePersonState extends State<RoutePerson> {
   Widget build(BuildContext context) {
     final currentPerson =
         Provider.of<PersonProvider>(context).getPerson(widget.id);
-    return Center(
-      child: Container(
+    return Dismissible(
+      key: ValueKey(widget.id),
+      onDismissed: (_) {
+        Provider.of<PersonProvider>(context, listen: false)
+            .removePerson(widget.id);
+      },
+      direction: DismissDirection.endToStart,
+      background: Container(
         width: MediaQuery.of(context).size.width * 0.9,
+        color: Theme.of(context).errorColor,
+        child: Icon(Icons.delete, color: Colors.white),
+        alignment: Alignment.centerRight,
+      ),
+      child: Center(
         child: Card(
-          child: Row(
-            children: [
-              Checkbox(
-                  value: currentPerson.isDriving,
-                  onChanged: (val) {
-                    setState(() {
-                      currentPerson.toggleIsDriving();
-                    });
-                  }),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Text(
-                  currentPerson.name,
-                  style: TextStyle(
-                    fontSize: 18,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            child: Row(
+              children: [
+                Checkbox(
+                    value: currentPerson.isDriving,
+                    onChanged: (val) {
+                      setState(() {
+                        currentPerson.toggleIsDriving();
+                      });
+                    }),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    currentPerson.name,
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
