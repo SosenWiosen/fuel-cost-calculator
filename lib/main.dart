@@ -35,8 +35,15 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Fuel Cost Calculator',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          iconTheme: IconThemeData(color: Colors.white),
+          primarySwatch: Colors.amber,
           visualDensity: VisualDensity.adaptivePlatformDensity,
+          accentColor: Colors.pinkAccent,
+          textTheme: TextTheme(
+            headline6: TextStyle(
+              color: Colors.white,
+            ),
+          ),
         ),
         home: RouteScreen(),
         routes: {

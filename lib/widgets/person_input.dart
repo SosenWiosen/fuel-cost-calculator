@@ -39,7 +39,6 @@ class _PersonInputState extends State<PersonInput> {
             child: IconButton(
               icon: Icon(Icons.add),
               onPressed: addPerson,
-              color: Colors.white,
             ),
           )
         ],

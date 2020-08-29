@@ -35,12 +35,15 @@ class MainDrawer extends StatelessWidget {
             width: double.infinity,
             alignment: Alignment.centerLeft,
             color: Theme.of(context).accentColor,
-            child: Text(
-              "Calculate your costs!",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 25,
-                color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Calculate your costs!",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 25,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),

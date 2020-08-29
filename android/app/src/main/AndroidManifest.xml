@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="fuel_cost_calculator"
+        android:label="Fuel Costs"
         android:icon="@mipmap/ic_launcher">
         <service
             android:name="io.flutter.plugins.androidalarmmanager.AlarmService"

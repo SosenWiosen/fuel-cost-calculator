@@ -72,10 +72,15 @@ class _RouteScreenState extends State<RouteScreen> {
                         ),
                       ),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: persons.length,
-                    itemBuilder: (ctx, index) => RoutePerson(persons[index].id),
-                  ),
+                  child: persons.isEmpty
+                      ? Center(
+                          child: Text("No persons currently added!"),
+                        )
+                      : ListView.builder(
+                          itemCount: persons.length,
+                          itemBuilder: (ctx, index) =>
+                              RoutePerson(persons[index].id),
+                        ),
                 ),
               ],
             ),
