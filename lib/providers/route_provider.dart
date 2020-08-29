@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:fuel_cost_calculator/helpers/db_helper.dart';
 import 'package:fuel_cost_calculator/helpers/mapping_helper.dart';
@@ -13,11 +15,27 @@ class RouteProvider with ChangeNotifier {
     return [..._positions];
   }
 
-  Future<void> addPoint() async {
-    final currPos = await Geolocator().getCurrentPosition();
-    _positions.add(currPos);
-    await DBHelper.insert(
-        DBHelper.gpsPointsTableName, MappingHelper.mapPosition(currPos));
+  static void startLocationService() {
+    Timer.periodic(
+      Duration(seconds: 2),
+      (timer) {
+        addPoint();
+      },
+    );
+  }
+
+  static void addPoint() async {
+    //print("Alarm works!");
+    final prefs = await SharedPreferences.getInstance();
+    prefs.reload();
+    if (prefs.getBool("isActive") ?? false) {
+      //print("I'm adding a point!");
+      final currPos = await Geolocator().getCurrentPosition();
+
+      print(currPos.timestamp);
+      await DBHelper.insert(
+          DBHelper.gpsPointsTableName, MappingHelper.mapPosition(currPos));
+    }
   }
 
   Future<double> getDistance(List<Position> points) async {
@@ -46,6 +64,7 @@ class RouteProvider with ChangeNotifier {
     final dataList = await DBHelper.getData(DBHelper.gpsPointsTableName);
     _positions =
         dataList.map((map) => MappingHelper.convertMapToPosition(map)).toList();
+    notifyListeners();
   }
 
   void toggleRoute(Function function) {
@@ -68,15 +87,17 @@ class RouteProvider with ChangeNotifier {
     //start gps tracker
     final db = await DBHelper.database();
     db.delete(DBHelper.gpsPointsTableName);
+    db.delete(DBHelper.drivingTimesTableName);
     isActive = true;
   }
 
   void endRoute(Function function) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool("isActive", false);
+    print(prefs.getBool("isActive"));
     isActive = false;
 
-    function();
+    //function();
 
     //clear database
   }

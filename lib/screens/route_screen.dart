@@ -62,11 +62,6 @@ class _RouteScreenState extends State<RouteScreen> {
             )
           : Column(
               children: [
-                RaisedButton(
-                    onPressed:
-                        Provider.of<RouteProvider>(context, listen: false)
-                            .addPoint,
-                    child: Text("Add gps poind for tedsing.")),
                 !routes.isActive
                     ? PersonInput()
                     : Padding(

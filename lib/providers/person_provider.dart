@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:fuel_cost_calculator/helpers/db_helper.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:min_id/min_id.dart';
@@ -34,7 +35,6 @@ class PersonProvider with ChangeNotifier {
   void removePerson(String id) async {
     _persons.removeWhere((element) => element.id == id);
     final db = await DBHelper.database();
-    notifyListeners();
     await db.delete(DBHelper.personsTableName, where: "id=?", whereArgs: [id]);
   }
 
@@ -70,29 +70,39 @@ class PersonProvider with ChangeNotifier {
   }
 
   Future<void> setPersonsDistance() async {
+
     _persons.forEach((person) async {
 //      print(person.drivingTimes.toString());
       person.drivingTimes.forEach((drivingTime) async {
+        print("printig da driving times ${drivingTime.startedDriving} ${drivingTime.stoppedDriving}");
         //gets points in given drivingTime and calculates the distance
+        print("dose are positions ${_positions}");
         List<Position> pointsWhileDriving = _positions
             .where(
-              (position) =>
-                  (position.timestamp.isAfter(drivingTime.startedDriving) &&
-                      position.timestamp.isBefore(drivingTime.stoppedDriving)),
+              (position) {
+                print("Checking this position: ${position.timestamp} with ${drivingTime.id}");
+                print((position.timestamp.isAfter(drivingTime.startedDriving) &&
+                    position.timestamp.isBefore(drivingTime.stoppedDriving)));
+                return (position.timestamp.isAfter(drivingTime.startedDriving) &&
+                    position.timestamp.isBefore(drivingTime.stoppedDriving));
+              }
+
             )
             .toList();
-//        print("calculating distęs");
+        print("poinds $pointsWhileDriving");
+        print("calculating distęs");
         //adds distance for a given points between a given timestamp
         person.metersDriven += await getDistance(pointsWhileDriving);
+
         //print(" this is inside the function${person.metersDriven}");
       }); /**/
 
-      /*print(
-          "printing person distance $personDistanceInMeters of ${person.name}");*/
+      print(
+          "printing person distance ${person.metersDriven} of ${person.name}");
 
       // print(person.metersDriven);
-      notifyListeners();
     });
+    notifyListeners();
     //calculates distance for each drivingTime,
   }
 
@@ -120,7 +130,7 @@ class PersonProvider with ChangeNotifier {
           (personMap) => Person.fromMapAndDateTimeList(
             personMap,
             drivingTimesList
-                .where((element) => element.id == personMap["id"])
+                .where((element) => element.userId == personMap["id"])
                 .toList(),
           ),
         )
@@ -177,11 +187,13 @@ class Person with ChangeNotifier {
   void toggleIsDriving() async {
     if (isDriving == false) {
       var currDrivingTime = DrivingDateTime(DateTime.now(), id);
-      _drivingTimes.add(DrivingDateTime(DateTime.now(), id));
-      DBHelper.insert(DBHelper.drivingTimesTableName, currDrivingTime.toMap());
+      _drivingTimes.add(currDrivingTime);
+      await DBHelper.insert(
+          DBHelper.drivingTimesTableName, currDrivingTime.toMap());
 
       isDriving = !isDriving;
       notifyListeners();
+      print("startin mah drive");
       return;
     }
 
@@ -189,6 +201,7 @@ class Person with ChangeNotifier {
     final db = await DBHelper.database();
     drivingTime.stoppedDriving = DateTime.now();
     isDriving = !isDriving;
+    print(drivingTime.id);
     db.update(DBHelper.drivingTimesTableName, drivingTime.toMap(),
         where: "id=?",
         whereArgs: [drivingTime.id],
@@ -228,5 +241,6 @@ class DrivingDateTime {
 
   DrivingDateTime(this.startedDriving, this.userId) {
     id = MinId.getId();
+    print("uwuL: $id");
   }
 }

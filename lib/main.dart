@@ -1,3 +1,4 @@
+import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -6,8 +7,13 @@ import 'providers/route_provider.dart';
 import 'screens/route_screen.dart';
 import 'screens/summary_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final int pointAdderId = 0;
+  await AndroidAlarmManager.initialize();
   runApp(MyApp());
+  await AndroidAlarmManager.oneShot(
+      Duration.zero, pointAdderId, RouteProvider.startLocationService);
 }
 
 class MyApp extends StatelessWidget {
