@@ -37,7 +37,7 @@ class _PersonInputState extends State<PersonInput> {
           CircleAvatar(
             backgroundColor: Theme.of(context).primaryColor,
             child: IconButton(
-              icon: Icon(Icons.add),
+              icon: Icon(Icons.add, color: Colors.black,),
               onPressed: addPerson,
             ),
           )
