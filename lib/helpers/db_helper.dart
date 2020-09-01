@@ -12,7 +12,7 @@ class DBHelper {
       path.join(dbPath, "fuel_Cost.db"),
       onCreate: (db, version) async {
         await db.execute(
-            "CREATE TABLE $drivingTimesTableName(id TEXT PRIMARY KEY, user_id TEXT, started_driving TEXT, stopped_driving TEXT)");
+            "CREATE TABLE $drivingTimesTableName(id TEXT PRIMARY KEY, user_id TEXT, started_driving INT, stopped_driving INT)");
         await db.execute(
             "CREATE TABLE $gpsPointsTableName(timestamp TEXT PRIMARY KEY, loc_lat REAL, loc_lng REAL)");
         return await db.execute(

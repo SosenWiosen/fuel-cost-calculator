@@ -45,14 +45,16 @@ class _RouteScreenState extends State<RouteScreen> {
       appBar: AppBar(
         title: Text("Current route"),
         actions: [
-          IconButton(
-            icon: Icon(Icons.timer),
-            onPressed: () {
-              routes.toggleRoute(
-                Provider.of<PersonProvider>(context, listen: false)
-                    .stopDrivingAll,
-              );
-            },
+          StatefulBuilder(
+            builder: (context, setState) => IconButton(
+              icon: Icon(Icons.timer),
+              onPressed: () {
+                routes.toggleRoute(
+                  Provider.of<PersonProvider>(context, listen: false)
+                      .stopDrivingAll,
+                );
+              },
+            ),
           )
         ],
       ),

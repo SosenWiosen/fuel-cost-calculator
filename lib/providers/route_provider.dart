@@ -25,39 +25,18 @@ class RouteProvider with ChangeNotifier {
   }
 
   static void addPoint() async {
-    //print("Alarm works!");
     final prefs = await SharedPreferences.getInstance();
     prefs.reload();
     if (prefs.getBool("isActive") ?? false) {
-      //print("I'm adding a point!");
-      final currPos = await Geolocator().getCurrentPosition();
-
-      print(currPos.timestamp);
+      var currPos = await getCurrentPosition();
+      print('debug');
       await DBHelper.insert(
           DBHelper.gpsPointsTableName, MappingHelper.mapPosition(currPos));
     }
   }
 
-  Future<double> getDistance(List<Position> points) async {
-    double distanceInMeters = 0;
-    //sorts by timestamp
-    points.sort((position1, position2) =>
-        position1.timestamp.compareTo(position2.timestamp));
-    //calculates
-    for (int i = 1; i < _positions.length; i++) {
-      //print(i);
-      distanceInMeters += await Geolocator().distanceBetween(
-          points[i - 1].latitude,
-          points[i - 1].longitude,
-          points[i].latitude,
-          points[i].longitude);
-    }
-    return distanceInMeters;
-  }
-
   Future<void> setTotalDistance() async {
     totalDistance = await getDistance(positions);
-    print("total distąs $totalDistance");
   }
 
   Future<void> fetchAndSetPositions() async {
@@ -76,7 +55,6 @@ class RouteProvider with ChangeNotifier {
   }
 
   Future<void> fetchAndSetIsActiveStatus() async {
-    print("nigga?");
     final prefs = await SharedPreferences.getInstance();
     isActive = prefs.getBool("isActive") ?? false;
   }
@@ -84,10 +62,7 @@ class RouteProvider with ChangeNotifier {
   void startRoute() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool("isActive", true);
-    //start gps tracker
     final db = await DBHelper.database();
-    db.delete(DBHelper.gpsPointsTableName);
-    db.delete(DBHelper.drivingTimesTableName);
     isActive = true;
   }
 
@@ -96,9 +71,6 @@ class RouteProvider with ChangeNotifier {
     prefs.setBool("isActive", false);
     print(prefs.getBool("isActive"));
     isActive = false;
-
-    //function();
-
-    //clear database
+    function();
   }
 }

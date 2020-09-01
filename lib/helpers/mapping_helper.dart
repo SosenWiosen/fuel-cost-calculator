@@ -1,4 +1,5 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong/latlong.dart';
 
 class MappingHelper {
   static Map<String, dynamic> mapPosition(Position position) {
@@ -15,4 +16,17 @@ class MappingHelper {
         latitude: positionMap["loc_lat"],
         longitude: positionMap["loc_lng"]);
   }
+}
+
+Future<double> getDistance(List<Position> points) async {
+  double distanceInMeters = 0;
+  points.sort((position1, position2) =>
+      position1.timestamp.compareTo(position2.timestamp));
+  for (int i = 1; i < points.length; i++) {
+    final Distance distance = new Distance();
+    distanceInMeters += distance(
+        LatLng(points[i - 1].latitude, points[i - 1].longitude),
+        LatLng(points[i].latitude, points[i].longitude));
+  }
+  return distanceInMeters;
 }

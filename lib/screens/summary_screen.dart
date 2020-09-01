@@ -58,85 +58,93 @@ class _SummaryScreenState extends State<SummaryScreen> {
     final persons = Provider.of<PersonProvider>(context).persons;
     final totalDistance =
         Provider.of<PersonProvider>(context).totalDistanceByAllPersons;
-    return Scaffold(
-      drawer: MainDrawer(),
-      appBar: AppBar(
-        title: Text("Summary"),
-      ),
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : ListView(
-              children: [
-                Container(
-                  margin: EdgeInsets.all(10),
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        child: TextField(
-                          decoration:
-                              InputDecoration(labelText: "Total fuel cost"),
-                          onChanged: (val) {
-                            try {
-                              fuelCost = double.tryParse(val.trim());
-                            } catch (error) {
-                              return;
-                            }
-                          },
+    return StatefulBuilder(builder: (context, setState) {
+      return Scaffold(
+        drawer: MainDrawer(),
+        appBar: AppBar(
+          title: Text("Summary"),
+        ),
+        body: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : ListView(
+                children: [
+                  Container(
+                    margin: EdgeInsets.all(10),
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          child: TextField(
+                            decoration:
+                                InputDecoration(labelText: "Total fuel cost"),
+                            onChanged: (val) {
+                              setState(() {
+                                try {
+                                  fuelCost = double.tryParse(val.trim());
+                                } catch (error) {
+                                  fuelCost = 0;
+                                  return;
+                                }
+                              });
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Card(
-                  child: Table(
-                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                    border: TableBorder.symmetric(
-                        inside: BorderSide(
-                      width: 2,
-                      color: Colors.grey,
-                    )),
-                    children: [
-                      TableRow(
-                        children: [
-                          TableContent("Person:"),
-                          TableContent("Distance Driven: "),
-                          TableContent("Cost:"),
-                        ],
-                      ),
-                      ...persons.map((person) {
-                        print(person.metersDriven);
-//                        print("ehh$totalDistance");
-                        return TableRow(
+                  Card(
+                    child: Table(
+                      defaultVerticalAlignment:
+                          TableCellVerticalAlignment.middle,
+                      border: TableBorder.symmetric(
+                          inside: BorderSide(
+                        width: 2,
+                        color: Colors.grey,
+                      )),
+                      children: [
+                        TableRow(
                           children: [
-                            TableContent(person.name),
-                            TableContent(
-                                "${person.metersDriven.toStringAsFixed(0)}m"),
-                            TableContent(
-                              totalDistance == 0.0
-                                  ? "0 zł"
-                                  : "${(fuelCost * person.metersDriven / totalDistance).toStringAsFixed(0)} zł",
-                            ),
+                            TableContent("Person:"),
+                            TableContent("Distance Driven: "),
+                            TableContent("Cost:"),
                           ],
-                        );
-                      }).toList(),
-                    ],
+                        ),
+                        ...persons.map((person) {
+                          print(person.metersDriven);
+                          return TableRow(
+                            children: [
+                              TableContent(person.name),
+                              TableContent(
+                                  "${person.metersDriven.toStringAsFixed(0)}m"),
+                              TableContent(
+                                totalDistance == 0.0
+                                    ? "0 zł"
+                                    : "${((fuelCost ?? 0) * person.metersDriven / totalDistance).toStringAsFixed(0)} zł",
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    "Total distance driven: $totalDistance",
-                    style: TextStyle( fontWeight: FontWeight.bold, fontSize: 18, color: Colors.grey[600]),
-                    textAlign: TextAlign.right,
-                  ),
-                )
-              ],
-            ),
-    );
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      "Total distance driven: $totalDistance",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.grey[600]),
+                      textAlign: TextAlign.right,
+                    ),
+                  )
+                ],
+              ),
+      );
+    });
   }
 }
